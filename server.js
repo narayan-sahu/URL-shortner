@@ -1,34 +1,33 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const ShortUrl = require('./models/shortUrl')
-const app = express()
+import express from 'express'
+import mongoose from 'mongoose'
+import { urlShort, getOriginalUrl } from "./Controllers/url.js";
 
-mongoose.connect('mongodb://localhost/urlShortener', {
-  useNewUrlParser: true, useUnifiedTopology: true
-})
 
-app.set('view engine', 'ejs')
-app.use(express.urlencoded({ extended: false }))
+const app = express();
+const port = 3001;
 
-app.get('/', async (req, res) => {
-  const shortUrls = await ShortUrl.find()
-  res.render('index', { shortUrls: shortUrls })
-})
+app.use(express.urlencoded({extended:true}))
 
-app.post('/shortUrls', async (req, res) => {
-  await ShortUrl.create({ full: req.body.fullUrl })
+mongoose
+  .connect(
+    "mongodb+srv://sumanmalakar2022:G1s1IDtzrysnBeV4@cluster0.dplswg5.mongodb.net/",
+    {
+      dbName: "NodeJS_Express_API_Series",
+    }
+  )
+  .then(() => console.log("Mongodb Connected"))
+  .catch((error) => console.log(error));
 
-  res.redirect('/')
-})
 
-app.get('/:shortUrl', async (req, res) => {
-  const shortUrl = await ShortUrl.findOne({ short: req.params.shortUrl })
-  if (shortUrl == null) return res.sendStatus(404)
+  app.get('/',(req,res)=>{
+    res.render("server.ejs",{shortUrl:null})
+  })
 
-  shortUrl.clicks++
-  shortUrl.save()
+  // handle url submission
+  app.post("/shorten", urlShort);
 
-  res.redirect(shortUrl.full)
-})
+  // redirect to original url using short url
+  app.get("/:shortCode", getOriginalUrl);
 
-app.listen(process.env.PORT || 5000);
+
+app.listen(port,()=>console.log(`Server is running on port ${port}`))
