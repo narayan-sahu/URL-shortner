@@ -1,41 +1,42 @@
-import express from 'express'
-import mongoose from 'mongoose'
-import { urlShort, getOriginalUrl } from "./Controllers/url.js";
-import {} from 'dotenv'
-import cors from 'cors'
+import express from 'express';
+import mongoose from 'mongoose';
+import { urlShort, getOriginalUrl } from './Controllers/url.js';
+import dotenv from 'dotenv'; // Import dotenv correctly
+import cors from 'cors';
+
+// Initialize dotenv to load environment variables
+dotenv.config({ path: '.env' });
 
 const app = express();
-const port = 3001;
-
-config({path:'.env'})
+const port = process.env.PORT || 3001; // Use PORT from environment variables if available
 
 app.use(cors({
-  origin:true,
-  methods:["POST","GET","DELETE","PUT"],
-  credentials:true
-}))
+  origin: true,
+  methods: ["POST", "GET", "DELETE", "PUT"],
+  credentials: true
+}));
 
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // Add this to parse JSON bodies
+
+// Set EJS as the templating engine
+app.set('view engine', 'ejs');
 
 mongoose
-  .connect(process.env.MongoUrl,
-    {
-      dbName: "NodeJS_Express_API_Connection",
-    }
-  )
-  .then(() => console.log("Mongodb Connected"))
-  .catch((error) => console.log(error));
-
-
-  app.get('/',(req,res)=>{
-    res.render("server.ejs",{shortUrl:null})
+  .connect(process.env.MongoUrl, {
+    dbName: 'NodeJS_Express_API_Connection',
   })
+  .then(() => console.log('Mongodb Connected'))
+  .catch((error) => console.log('Error connecting to MongoDB:', error));
 
-  // handle url submission
-  app.post("/shorten", urlShort);
+app.get('/', (req, res) => {
+  res.render('server', { shortUrl: null }); // Render server.ejs with a default null shortUrl
+});
 
-  // redirect to original url using short url
-  app.get("/:shortCode", getOriginalUrl);
+// Handle URL submission
+app.post('/shorten', urlShort);
 
+// Redirect to the original URL using the short code
+app.get('/:shortCode', getOriginalUrl);
 
-app.listen(port,()=>console.log(`Server is running on port ${port}`))
+app.listen(port, () => console.log(`Server is running on port ${port}`));
