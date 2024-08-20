@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { urlShort, getOriginalUrl } from './Controllers/url.js';
+import { urlShort, getOriginalUrl } from './controllers/url.js';
 import dotenv from 'dotenv'; // Import dotenv correctly
 import cors from 'cors';
 
