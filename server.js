@@ -1,16 +1,24 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import { urlShort, getOriginalUrl } from "./Controllers/url.js";
-
+import {} from 'dotenv'
+import cors from 'cors'
 
 const app = express();
 const port = 3001;
 
+config({path:'.env'})
+
+app.use(cors({
+  origin:true,
+  methods:["POST","GET","DELETE","PUT"],
+  credentials:true
+}))
+
 app.use(express.urlencoded({extended:true}))
 
 mongoose
-  .connect(
-    "mongodb+srv://narayannerd:xyeFR2XmUeruqQPx@cluster0.rhzsz.mongodb.net/",
+  .connect(process.env.MongoUrl,
     {
       dbName: "NodeJS_Express_API_Connection",
     }
