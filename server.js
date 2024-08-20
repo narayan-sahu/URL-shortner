@@ -5,20 +5,13 @@ import dotenv from 'dotenv';
 dotenv.config(); // Load environment variables
 
 const app = express();
-const port = process.env.PORT || 3000; // Use the PORT provided by Render or default to 3000
+let port = process.env.PORT || 3001; // Use the PORT provided by Render or default to 3000
 
 const mongoUri = process.env.MongoUrl;
 
 if (!mongoUri) {
   throw new Error('MongoDB connection URI is missing in the environment variables.');
 }
-console.log("MongoDB URI:", mongoUri);
-console.log("Port:", port);
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
 
 mongoose
   .connect(mongoUri, {
@@ -38,7 +31,17 @@ app.get('/', (req, res) => {
   res.send('Hello from URL Shortener!');
 });
 
-// Start the server and bind to the specified port
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+// Handle server errors, including EADDRINUSE
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use, trying another port...`);
+    port++;
+    server.listen(port);
+  } else {
+    console.error(`Server error: ${err.message}`);
+  }
 });
