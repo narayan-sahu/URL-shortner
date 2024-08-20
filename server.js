@@ -10,9 +10,9 @@ app.use(express.urlencoded({extended:true}))
 
 mongoose
   .connect(
-    "mongodb+srv://sumanmalakar2022:G1s1IDtzrysnBeV4@cluster0.dplswg5.mongodb.net/",
+    "mongodb+srv://narayannerd:xyeFR2XmUeruqQPx@cluster0.rhzsz.mongodb.net/",
     {
-      dbName: "NodeJS_Express_API_Series",
+      dbName: "NodeJS_Express_API_Connection",
     }
   )
   .then(() => console.log("Mongodb Connected"))
