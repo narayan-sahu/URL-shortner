@@ -1,14 +1,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import { urlShort, getOriginalUrl } from './controllers/url.js';
-import dotenv from 'dotenv'; // Import dotenv correctly
 import cors from 'cors';
 
-// Initialize dotenv to load environment variables
-dotenv.config({ path: '.env' });
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001; // Use PORT from environment variables if available
+const port = process.env.PORT || 3001;
 
 app.use(cors({
   origin: true,
@@ -17,26 +16,31 @@ app.use(cors({
 }));
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Add this to parse JSON bodies
+app.use(express.json());
 
-// Set EJS as the templating engine
 app.set('view engine', 'ejs');
 
+// Mongoose connection with increased timeout
 mongoose
-  .connect(process.env.MongoUrl, {
+  .connect(process.env.MONGO_URL, {
     dbName: 'NodeJS_Express_API_Connection',
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    connectTimeoutMS: 30000,  // 30 seconds timeout
+    socketTimeoutMS: 45000,   // 45 seconds socket timeout
   })
   .then(() => console.log('Mongodb Connected'))
-  .catch((error) => console.log('Error connecting to MongoDB:', error));
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1); // Exit the process if connection fails
+  });
 
 app.get('/', (req, res) => {
-  res.render('server', { shortUrl: null }); // Render server.ejs with a default null shortUrl
+  res.render('server', { shortUrl: null });
 });
 
-// Handle URL submission
 app.post('/shorten', urlShort);
 
-// Redirect to the original URL using the short code
 app.get('/:shortCode', getOriginalUrl);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
