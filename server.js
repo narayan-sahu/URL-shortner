@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config(); // Load environment variables
 
+const port = process.env.PORT || 3005;
+
+
 const mongoUri = process.env.MongoUrl;
 
 if (!mongoUri) {
